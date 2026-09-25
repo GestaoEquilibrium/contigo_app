@@ -58,6 +58,16 @@ endereço final. Domínio próprio: no projeto do Cloudflare → *Domains*.
 A Vercel também funciona, mas o plano grátis dela é só para uso pessoal, não
 comercial — não serve para o Contigo em produção.
 
+## Portal de gestão — /gestao
+
+O portal da empresa (admin, RH, gestor, SESMT) e a operação do Contigo moram no
+mesmo site, em `/gestao`. Mesmo banco, mesma chave anon: o que cada papel vê é a
+RLS quem decide. Telas: Painel NR-1 (agregados, supressão visível, CSV para o
+PGR), Funcionários (convidar, link de ativação, desativar), Setores, Acessos,
+Contrato, Auditoria e — só para a operação — Empresas e contratos (criar empresa,
+contrato, liberar acesso, recalcular agregados). Código em `src/gestao/`.
+Precisa da migração `0006_portal.sql`.
+
 ## Estrutura
 
 ```

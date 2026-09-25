@@ -9,6 +9,7 @@ import { AfinidadePronto, AfinidadeTela, Conversar } from './telas/Conversar';
 import { Eu } from './telas/Eu';
 import { Checkin, Hoje, PraticaGuiada, Pronto } from './telas/Hoje';
 import { PassoFeito, PassoTela, TemaEmBreve, TrilhaTela, Trilhas } from './telas/Trilhas';
+import { Gestao } from './gestao/Gestao';
 
 /**
  * O portão decide onde a pessoa pode estar:
@@ -29,6 +30,11 @@ function Portao() {
   useEffect(() => {
     if (s.logado && tokenPendente && s.conta?.vinculo === 'ativo' && !caminho.startsWith('/ativar')) local.apagar(CHAVE_CONVITE);
   }, [s.logado, s.conta?.vinculo, tokenPendente, caminho]);
+
+  // O portal da empresa mora em /gestao — outra casca, mesmo banco, mesma RLS.
+  if (caminho.startsWith('/gestao')) {
+    return <Routes><Route path="/gestao/*" element={<Gestao />} /></Routes>;
+  }
 
   if (caminho === '/ajuda' || caminho === '/pratica') {
     return (
