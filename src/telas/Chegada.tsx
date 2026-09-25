@@ -13,7 +13,8 @@ import { CHAVE_CONVITE, CHAVE_EMAIL, CHAVE_INSTALACAO_VISTA, ehIphone, estaInsta
 export function Chegada() {
   const { token } = useParams();
   const { demo } = useSessao();
-  const [etapa, setEtapa] = useState<'boasvindas' | 'email' | 'codigo'>(token ? 'boasvindas' : 'email');
+  const [etapa, setEtapa] = useState<'boasvindas' | 'email' | 'codigo' | 'senha'>(token ? 'boasvindas' : 'email');
+  const [senha, setSenha] = useState('');
   const [email, setEmail] = useState(local.ler<string>(CHAVE_EMAIL, ''));
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -21,10 +22,24 @@ export function Chegada() {
 
   useEffect(() => { if (token) local.gravar(CHAVE_CONVITE, token); }, [token]);
 
+  const emailOk = () => {
+    const em = email.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { setErro('Esse e-mail não parece completo.'); return null; }
+    return em;
+  };
+
+  const entrarSenha = async (e?: FormEvent) => {
+    e?.preventDefault();
+    const em = emailOk(); if (!em) return;
+    if (!senha) { setErro('Digite a senha.'); return; }
+    setOcupado(true); setErro(null);
+    try { local.gravar(CHAVE_EMAIL, em); await dados.entrarComSenha(em, senha); }
+    catch (err) { setErro((err as Error).message); setOcupado(false); }
+  };
+
   const enviar = async (e?: FormEvent) => {
     e?.preventDefault();
-    const em = email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { setErro('Esse e-mail não parece completo.'); return; }
+    const em = emailOk(); if (!em) return;
     setOcupado(true); setErro(null);
     try {
       local.gravar(CHAVE_EMAIL, em);
@@ -69,8 +84,29 @@ export function Chegada() {
           <input className="campo" type="email" inputMode="email" autoComplete="email" placeholder="nome@empresa.com.br"
             value={email} onChange={e => setEmail(e.target.value)} autoFocus />
           <Erro msg={erro} />
-          <div className="pe"><button className="btn btn-coral" type="submit" disabled={ocupado}><Envelope />{ocupado ? 'Enviando…' : 'Mandar o código'}</button></div>
+          <div className="pe">
+            <button className="btn btn-coral" type="submit" disabled={ocupado}><Envelope />{ocupado ? 'Enviando…' : 'Mandar o código'}</button>
+            <button className="btn btn-texto" type="button" onClick={() => { setErro(null); setEtapa('senha'); }}>Tenho uma senha</button>
+          </div>
           <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
+        </form>
+      </Moldura>
+    );
+  }
+
+  if (etapa === 'senha') {
+    return (
+      <Moldura>
+        <form className="entra" onSubmit={entrarSenha}>
+          <FluxoTopo aoVoltar={() => { setEtapa('email'); setErro(null); }} rotulo="Voltar" />
+          <h1>Entrar com senha</h1>
+          <p className="fraco">Para quem recebeu uma senha da equipe do Contigo. Colaboradores entram pelo código no e-mail.</p>
+          <input className="campo" type="email" inputMode="email" autoComplete="username" placeholder="nome@empresa.com.br"
+            value={email} onChange={e => setEmail(e.target.value)} />
+          <input className="campo" type="password" autoComplete="current-password" placeholder="Senha"
+            value={senha} onChange={e => setSenha(e.target.value)} autoFocus />
+          <Erro msg={erro} />
+          <div className="pe"><button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Entrando…' : 'Entrar'}</button></div>
         </form>
       </Moldura>
     );

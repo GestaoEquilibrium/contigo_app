@@ -49,6 +49,10 @@ export class DadosSupabase implements Dados {
     const { error } = await this.sb.auth.verifyOtp({ email, token: codigo.replace(/\D/g, ''), type: 'email' });
     if (error) throw new Error('Código não confere ou já venceu. Peça um novo.');
   }
+  async entrarComSenha(email: string, senha: string) {
+    const { error } = await this.sb.auth.signInWithPassword({ email, password: senha });
+    if (error) throw new Error('E-mail ou senha não conferem.');
+  }
   async sair() { this.conta = null; await this.sb.auth.signOut(); }
 
   // ---- conta ------------------------------------------------------------------

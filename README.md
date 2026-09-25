@@ -43,19 +43,20 @@ qualquer coisa, e nada sai do navegador. Serve para sentir o produto.
 Quem entra sem convite vê "Falta o convite da sua empresa". Quem apagou os dados
 vê "O seu acesso foi encerrado" e precisa de convite novo.
 
-## Publicar (grátis, com HTTPS)
+## Publicar (grátis, com HTTPS, e sem cláusula de uso pessoal)
 
-**Vercel** (recomendado): `npm i -g vercel` → `vercel` na pasta do projeto →
-aceitar os padrões → em *Settings → Environment Variables* colocar as duas
-`VITE_...` → `vercel --prod`. O `vercel.json` já cuida das rotas do app.
-Depois, apontar `contigo.equilibrium.com.br` para lá (Settings → Domains).
+**Cloudflare** (Workers & Pages → Create → conectar o GitHub → escolher o
+repositório). Build: `npm run build`; saída: `dist`. Variáveis de ambiente
+(antes do primeiro build): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+`NODE_VERSION=22`. O `wrangler.jsonc` na raiz já diz ao Cloudflare que toda
+rota desconhecida cai no `index.html` (é assim que o app roteia).
+Cada push no GitHub publica sozinho.
 
-**Netlify**: arrastar a pasta `dist` (depois de `npm run build`) no painel; o
-`public/_redirects` já cuida das rotas. As variáveis vão em *Site settings →
-Environment variables* (aí precisa buildar no Netlify, não arrastar).
+Depois de publicar, atualizar *Site URL* e *Redirect URLs* no Supabase com o
+endereço final. Domínio próprio: no projeto do Cloudflare → *Domains*.
 
-Em qualquer um: depois de publicar, atualizar *Site URL* e *Redirect URLs* no
-Supabase com o endereço final.
+A Vercel também funciona, mas o plano grátis dela é só para uso pessoal, não
+comercial — não serve para o Contigo em produção.
 
 ## Estrutura
 

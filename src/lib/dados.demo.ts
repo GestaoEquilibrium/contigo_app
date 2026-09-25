@@ -84,6 +84,7 @@ export class DadosDemo implements Dados {
   aoMudarSessao(cb: () => void) { this.ouvintes.add(cb); return () => { this.ouvintes.delete(cb); }; }
   async enviarCodigo(email: string) { await espera(); local.gravar('contigo.demo.email-pendente', email); }
   async confirmarCodigo(email: string) { await espera(); this.e.email = email; this.salvar(); this.avisar(); }
+  async entrarComSenha(email: string) { await espera(); this.e.email = email; this.salvar(); this.avisar(); }
   async sair() { this.e.email = null; this.salvar(); this.avisar(); }
 
   async minhaConta(): Promise<Conta> {

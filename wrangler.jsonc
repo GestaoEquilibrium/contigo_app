@@ -1,5 +1,5 @@
-// Cloudflare Workers (site estatico). Rota que nao e arquivo cai no index.html,
-// para o roteador do app resolver (/ativar/..., /trilhas/...).
+// Cloudflare Workers (site estático). Toda rota que não é arquivo cai no
+// index.html, para o roteador do app resolver (/ativar/..., /trilhas/...).
 {
   "name": "contigo-app",
   "compatibility_date": "2025-09-01",

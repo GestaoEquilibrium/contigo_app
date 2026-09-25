@@ -74,6 +74,7 @@ export interface Dados {
   aoMudarSessao(cb: () => void): () => void;
   enviarCodigo(email: string, voltarPara: string): Promise<void>;
   confirmarCodigo(email: string, codigo: string): Promise<void>;
+  entrarComSenha(email: string, senha: string): Promise<void>;
   sair(): Promise<void>;
 
   // conta
