@@ -1,0 +1,10 @@
+// Cloudflare Workers (site estatico). Rota que nao e arquivo cai no index.html,
+// para o roteador do app resolver (/ativar/..., /trilhas/...).
+{
+  "name": "contigo-app",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
