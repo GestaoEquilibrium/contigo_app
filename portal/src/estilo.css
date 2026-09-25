@@ -1,0 +1,112 @@
+/* ===== Contigo · Gestão — coral quente sobre quase-branco, layout de computador ===== */
+:root{
+  --papel:#FDFAF8; --areia:#FAF3EF; --cartao:#FFFFFF;
+  --tinta:#6B534B; --tinta-fraca:#A08880; --linha:#F0E4DD;
+  --coral500:#E2563C; --coral600:#C4432D; --coral800:#7E2417;
+  --coral-tint:#FBE9E3; --coral-tint2:#F6D5CB;
+  --fonte:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --raio:12px; --raio-g:16px;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body,#raiz{ height:100%; }
+body{ margin:0; background:var(--papel); color:var(--tinta); font-family:var(--fonte); font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+a{ color:var(--coral600); }
+h1{ font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+h2{ font-size:17px; margin:22px 0 8px; }
+p{ margin:0 0 10px; }
+.fraco{ color:var(--tinta-fraca); }
+.pequeno{ font-size:13px; }
+.erro{ color:var(--coral800); background:var(--coral-tint); border-radius:var(--raio); padding:10px 12px; font-size:14px; }
+.ok{ color:#2f5d3a; background:#eaf3ec; border-radius:var(--raio); padding:10px 12px; font-size:14px; }
+
+/* ===== Casca: barra lateral + conteúdo ===== */
+.casca{ display:flex; min-height:100%; }
+.lateral{ width:232px; flex:none; background:var(--cartao); border-right:1px solid var(--linha); padding:18px 14px; display:flex; flex-direction:column; gap:4px; position:sticky; top:0; height:100vh; }
+.lateral .marca{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:17px; color:var(--coral600); padding:4px 8px 14px; }
+.lateral .marca i{ width:24px; height:24px; border-radius:7px; background:var(--coral500); display:block; }
+.lateral .marca span{ font-weight:400; color:var(--tinta-fraca); font-size:13px; display:block; }
+.lateral .empresa{ padding:8px 10px; margin-bottom:8px; background:var(--areia); border-radius:var(--raio); font-size:13px; }
+.lateral .empresa b{ display:block; font-size:14px; }
+.lateral .empresa select{ width:100%; margin-top:6px; padding:6px 8px; border-radius:8px; border:1px solid var(--linha); background:var(--cartao); }
+.lateral .grupo{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--tinta-fraca); padding:12px 10px 4px; }
+.lateral a.item{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; color:var(--tinta); text-decoration:none; font-weight:700; font-size:14px; }
+.lateral a.item svg{ width:18px; height:18px; color:var(--tinta-fraca); }
+.lateral a.item.ativa{ background:var(--coral-tint); color:var(--coral800); }
+.lateral a.item.ativa svg{ color:var(--coral600); }
+.lateral .pe{ margin-top:auto; padding:8px 10px; font-size:12px; color:var(--tinta-fraca); }
+.lateral .pe button{ display:block; margin-top:6px; background:none; border:0; color:var(--coral600); font-weight:700; cursor:pointer; padding:0; }
+.conteudo{ flex:1; min-width:0; padding:28px 36px 48px; max-width:1180px; }
+.cabeca{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+.cabeca p{ margin:0; }
+.acoes{ display:flex; gap:8px; flex-wrap:wrap; }
+
+@media (max-width:820px){
+  .casca{ flex-direction:column; }
+  .lateral{ width:100%; height:auto; position:static; flex-direction:row; flex-wrap:wrap; align-items:center; padding:10px 12px; gap:2px; }
+  .lateral .marca{ padding:4px 8px; width:100%; }
+  .lateral .empresa{ width:100%; }
+  .lateral .grupo{ display:none; }
+  .lateral .pe{ margin-left:auto; }
+  .conteudo{ padding:18px 16px 40px; }
+}
+
+/* ===== Botões e campos ===== */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:8px 16px; border-radius:var(--raio); border:0; cursor:pointer; font-weight:700; font-size:14px; text-decoration:none; white-space:nowrap; }
+.btn:disabled{ opacity:.55; cursor:default; }
+.btn-coral{ background:var(--coral600); color:#fff; }
+.btn-coral:hover{ background:var(--coral800); }
+.btn-leve{ background:var(--cartao); color:var(--coral600); border:2px solid var(--linha); }
+.btn-leve:hover{ background:var(--areia); }
+.btn-texto{ background:none; color:var(--tinta-fraca); padding:6px 8px; min-height:32px; }
+.btn-texto:hover{ color:var(--coral600); }
+.btn-perigo{ background:none; color:var(--coral800); border:2px solid var(--coral-tint2); }
+.btn svg{ width:16px; height:16px; }
+.campo{ width:100%; min-height:40px; padding:8px 12px; border-radius:var(--raio); border:2px solid var(--linha); background:var(--cartao); font-size:15px; }
+.campo:focus{ outline:none; border-color:var(--coral500); }
+textarea.campo{ min-height:110px; resize:vertical; font-family:inherit; }
+.rotulo{ display:block; font-size:13px; font-weight:700; margin:12px 0 4px; }
+.linha-form{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; }
+
+/* ===== Cartões e tabelas ===== */
+.cartao{ background:var(--cartao); border:1px solid var(--linha); border-radius:var(--raio-g); padding:18px; }
+.cartao.suave{ background:var(--areia); border-color:transparent; }
+.cartao.destaque{ background:var(--coral-tint); border-color:var(--coral-tint2); }
+.cartao + .cartao{ margin-top:12px; }
+.cartao h3{ margin:0 0 6px; font-size:16px; }
+.grade{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
+.numero{ font-size:30px; font-weight:700; line-height:1.1; color:var(--coral800); }
+.numero small{ font-size:14px; font-weight:400; color:var(--tinta-fraca); margin-left:6px; }
+.tabela{ width:100%; border-collapse:collapse; background:var(--cartao); border:1px solid var(--linha); border-radius:var(--raio-g); overflow:hidden; }
+.tabela th,.tabela td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--linha); vertical-align:top; font-size:14px; }
+.tabela th{ background:var(--areia); font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--tinta-fraca); }
+.tabela tr:last-child td{ border-bottom:0; }
+.tabela td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+.tabela td.suprimido{ color:var(--tinta-fraca); font-style:italic; }
+.tabela .acoes-linha{ display:flex; gap:4px; justify-content:flex-end; }
+.rolagem{ overflow-x:auto; }
+.selo{ display:inline-block; padding:3px 9px; border-radius:999px; font-size:12px; font-weight:700; background:var(--areia); color:var(--tinta-fraca); }
+.selo.ativo{ background:#eaf3ec; color:#2f5d3a; }
+.selo.convidado{ background:var(--coral-tint); color:var(--coral800); }
+.selo.inativo{ background:var(--linha); color:var(--tinta-fraca); }
+.selo.demo{ background:var(--coral-tint); color:var(--coral800); }
+.vazio{ padding:34px; text-align:center; color:var(--tinta-fraca); background:var(--cartao); border:1px dashed var(--linha); border-radius:var(--raio-g); }
+.codigo{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; background:var(--areia); padding:8px 10px; border-radius:8px; word-break:break-all; }
+
+/* ===== Modal ===== */
+.fundo{ position:fixed; inset:0; background:rgba(107,83,75,.45); display:flex; align-items:center; justify-content:center; z-index:20; padding:16px; }
+.modal{ width:100%; max-width:520px; background:var(--cartao); border-radius:var(--raio-g); padding:22px; max-height:90vh; overflow:auto; }
+.modal h2{ margin:0 0 6px; font-size:19px; }
+.modal .pe{ display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+
+/* ===== Entrada ===== */
+.entrada{ min-height:100%; display:flex; align-items:center; justify-content:center; padding:24px; background:var(--areia); }
+.entrada .caixa{ width:100%; max-width:400px; background:var(--cartao); border:1px solid var(--linha); border-radius:22px; padding:28px; }
+.entrada .marca{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px; color:var(--coral600); margin-bottom:6px; }
+.entrada .marca i{ width:28px; height:28px; border-radius:8px; background:var(--coral500); display:block; }
+.entrada .btn{ width:100%; margin-top:8px; }
+.abas{ display:flex; gap:6px; background:var(--areia); padding:4px; border-radius:var(--raio); margin:14px 0 6px; }
+.abas button{ flex:1; min-height:34px; border:0; border-radius:9px; background:none; font-weight:700; font-size:13px; color:var(--tinta-fraca); cursor:pointer; }
+.abas button.ativa{ background:var(--cartao); color:var(--coral600); box-shadow:0 2px 6px rgba(107,83,75,.10); }
+.carregando{ padding:40px; text-align:center; color:var(--tinta-fraca); }
+.cartao h3 svg{ width:18px; height:18px; vertical-align:-3px; margin-right:6px; }
