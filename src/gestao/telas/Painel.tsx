@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { Cabeca, Carregando, Erro, Ico, Vazio } from '../componentes/base';
 import { dados } from '../lib/dados';
@@ -36,6 +37,9 @@ export function Painel() {
   const nEmpresa = Math.max(0, ...empresaInteira.map(l => l.n));
 
   const celula = (setorId: string | null, codigo: string) => doPeriodo.find(l => l.setorId === setorId && l.indicador === codigo);
+  const opacidade = (codigo: string, v: number) => (codigo === 'adesao' ? v / 100 : codigo === 'humor' || codigo === 'energia' ? (v - 1) / 4 : v / 100) * 0.28;
+  const Cel = ({ l, codigo, origem }: { l?: { valor: number }; codigo: string; origem: string }) =>
+    l ? <td className="num tinta" style={{ '--o': opacidade(codigo, l.valor) } as React.CSSProperties}><i /><span>{formatarValor(codigo, origem, l.valor)}</span></td> : <td className="num suprimido">n &lt; 12</td>;
 
   const exportar = () => {
     const linhas: (string | number | null)[][] = [['Empresa', 'Período', 'Setor', 'Indicador', 'Pessoas no recorte (n)', 'Valor']];
@@ -53,20 +57,25 @@ export function Painel() {
       </Cabeca>
 
       <div className="grade">
-        {indicadores.map(i => {
+        {indicadores.map((i, k) => {
           const l = empresaInteira.find(x => x.indicador === i.codigo);
           const ant = doAnterior.find(x => x.setorId === null && x.indicador === i.codigo);
+          const delta = l && ant ? l.valor - ant.valor : null;
+          const cor = i.codigo === 'adesao' ? 'var(--ambar)' : i.codigo === 'humor' ? 'var(--coral)' : i.codigo === 'energia' ? 'var(--rosa)' : 'var(--ameixa)';
           return (
-            <div className={'gcartao kpi-' + (i.origem === 'escala' ? 'escala' : i.codigo)} key={i.codigo}>
+            <motion.div className="gcartao kpi" style={{ '--cor': cor } as React.CSSProperties} key={i.codigo} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: k * 0.06 }}>
               <h3>{i.nome}</h3>
               {l ? (
                 <>
                   <div className="numero">{formatarValor(i.codigo, i.origem, l.valor)}<small>{l.n} pessoas</small></div>
-                  {ant && <p className="gpequeno gfraco" style={{ margin: '4px 0 0' }}>Mês anterior: {formatarValor(i.codigo, i.origem, ant.valor)}</p>}
+                  {delta !== null && Math.abs(delta) >= 0.05 && (
+                    <span className={'tendencia ' + (delta > 0 ? 'sobe' : 'desce')}>{delta > 0 ? '↑' : '↓'} {formatarValor(i.codigo, i.origem, Math.abs(delta))} vs. mês anterior</span>
+                  )}
+                  {delta !== null && Math.abs(delta) < 0.05 && <span className="tendencia">= mês anterior</span>}
                 </>
               ) : <p className="gfraco">Recorte pequeno demais.</p>}
-              <p className="gpequeno gfraco" style={{ margin: '6px 0 0' }}>{i.descricao}</p>
-            </div>
+              <p className="gpequeno gfraco" style={{ margin: '8px 0 0' }}>{i.descricao}</p>
+            </motion.div>
           );
         })}
       </div>
@@ -78,7 +87,7 @@ export function Painel() {
           <tbody>
             <tr>
               <td><b>Empresa inteira</b></td>
-              {indicadores.map(i => { const l = celula(null, i.codigo); return <td key={i.codigo} className={l ? 'num' : 'num suprimido'}>{l ? formatarValor(i.codigo, i.origem, l.valor) : '—'}</td>; })}
+              {indicadores.map(i => <Cel key={i.codigo} l={celula(null, i.codigo)} codigo={i.codigo} origem={i.origem} />)}
               <td className="num">{nEmpresa || '—'}</td>
             </tr>
             {dado.setores.map(s => {
@@ -87,7 +96,7 @@ export function Painel() {
               return (
                 <tr key={s.id}>
                   <td>{s.nome}</td>
-                  {indicadores.map(i => { const l = celula(s.id, i.codigo); return <td key={i.codigo} className={l ? 'num' : 'num suprimido'}>{l ? formatarValor(i.codigo, i.origem, l.valor) : 'n < 12'}</td>; })}
+                  {indicadores.map(i => <Cel key={i.codigo} l={celula(s.id, i.codigo)} codigo={i.codigo} origem={i.origem} />)}
                   <td className={temAlgo ? 'num' : 'num suprimido'}>{temAlgo ? n : 'suprimido'}</td>
                 </tr>
               );
@@ -96,7 +105,7 @@ export function Painel() {
         </table>
       </div>
       <p className="gpequeno gfraco" style={{ marginTop: 10 }}>
-        <b>n</b> é o número de pessoas diferentes que responderam no mês naquele recorte. Adesão = pessoas com vínculo que usaram o app ao menos uma vez.
+        A cor de fundo acompanha o valor (mais escuro = mais alto). <b>n</b> é o número de pessoas diferentes que responderam no mês naquele recorte. Adesão = pessoas com vínculo que usaram o app ao menos uma vez.
         Humor e energia vão de 1 a 5. As dimensões de risco psicossocial (demandas, controle, apoio…) entram quando o rastreio com escalas estiver ativo.
       </p>
     </>

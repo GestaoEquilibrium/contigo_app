@@ -43,9 +43,15 @@ export function Entrar() {
 
   return (
     <div className="entrada">
+      <aside className="lado">
+        <div className="marca">Contigo</div>
+        <h1>Só o grupo.<br />Nunca a pessoa.</h1>
+        <p>Indicadores de risco psicossocial por setor, mês a mês, para a NR-1 — sem que nenhum dado individual chegue à empresa. Nem por engano.</p>
+      </aside>
+      <div className="direita">
       <form className="caixa" onSubmit={enviar}>
-        <div className="marca"><i />Contigo <span className="gfraco" style={{ fontWeight: 400 }}>· Gestão</span></div>
-        <p className="gfraco">Indicadores agregados da sua empresa. Nenhum dado individual chega aqui — nem por engano.</p>
+        <div className="marca-p"><i />Contigo <span className="gfraco" style={{ fontWeight: 400, fontFamily: 'var(--fonte)', fontSize: 14 }}>· Gestão</span></div>
+        <p className="gfraco">Entre para ver o painel da sua empresa.</p>
         {demo && <span className="gselo demo">Demonstração · dados inventados</span>}
         <div className="gabas" role="tablist">
           <button type="button" className={modo === 'senha' ? 'ativa' : ''} onClick={() => { setModo('senha'); setErro(null); }}>Senha</button>
@@ -72,6 +78,7 @@ export function Entrar() {
         </button>
         {modo === 'criar' && <p className="gpequeno gfraco" style={{ marginTop: 12 }}>Depois de criar a conta, o administrador da sua empresa (ou a equipe do Contigo) libera o seu acesso.</p>}
       </form>
+      </div>
     </div>
   );
 }
@@ -81,11 +88,14 @@ export function SemEmpresa() {
   const { acessos } = useSessao();
   return (
     <div className="entrada">
+      <aside className="lado"><div className="marca">Contigo</div><h1>Quase lá.</h1><p>Falta alguém liberar o seu acesso.</p></aside>
+      <div className="direita">
       <div className="caixa">
-        <div className="marca"><i />Contigo <span className="gfraco" style={{ fontWeight: 400 }}>· Gestão</span></div>
+        <div className="marca-p"><i />Contigo <span className="gfraco" style={{ fontWeight: 400, fontFamily: 'var(--fonte)', fontSize: 14 }}>· Gestão</span></div>
         <h2 style={{ marginTop: 8 }}>Falta liberar o seu acesso</h2>
         <p>Você entrou como <b>{acessos?.email}</b>, mas nenhuma empresa liberou este e-mail ainda. Peça ao administrador da sua empresa — ou à equipe do Contigo — para conceder o acesso em <b>Acessos</b>.</p>
         <button className="gbtn gbtn-leve" onClick={() => dados.sair()}>Sair</button>
+      </div>
       </div>
     </div>
   );

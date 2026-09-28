@@ -19,7 +19,7 @@
   --h1:#7B4B9E; --h2:#EF5A8C; --h3:#E2563C; --h4:#F58A3C; --h5:#F5A524;   /* humor 1..5 */
 
   --fonte:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --display:"Fraunces", Georgia, "Times New Roman", serif;
+  --display:"Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
   --r:14px; --rg:20px; --rxl:26px;
   --sombra:0 8px 24px rgba(63,43,38,.08), 0 2px 6px rgba(63,43,38,.05);
   --sombra-cor:0 10px 26px rgba(226,86,60,.28);

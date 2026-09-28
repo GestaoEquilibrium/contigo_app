@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Carregando, Casca } from './componentes/base';
 import { ProvedorSessao, useSessao } from './lib/sessao';
 import { Acessos, Auditoria, Contrato, Setores } from './telas/Cadastro';
@@ -15,6 +16,7 @@ import './estilo.css';
  */
 function Portao() {
   const s = useSessao();
+  const loc = useLocation();
   if (s.carregando) return <Carregando />;
   if (!s.logado) return <Routes><Route path="*" element={<Entrar />} /></Routes>;
   const operacao = !!s.acessos?.operacao;
@@ -24,7 +26,9 @@ function Portao() {
   const admin = papel === 'admin' || operacao;
   return (
     <Casca>
-      <Routes>
+      <AnimatePresence mode="wait" initial={false}>
+      <motion.div key={loc.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+      <Routes location={loc}>
         {s.atual && <Route index element={<Painel />} />}
         {s.atual && cadastro && <Route path="funcionarios" element={<Funcionarios />} />}
         {s.atual && cadastro && <Route path="setores" element={<Setores />} />}
@@ -34,6 +38,8 @@ function Portao() {
         {operacao && <Route path="operacao" element={<Operacao />} />}
         <Route path="*" element={<Navigate to={s.atual ? '/gestao' : '/gestao/operacao'} replace />} />
       </Routes>
+      </motion.div>
+      </AnimatePresence>
     </Casca>
   );
 }
