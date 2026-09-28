@@ -32,21 +32,21 @@ export function Eu() {
 
   return (
     <Moldura comTopo comAbas>
-      <div className="entra">
+      <div>
         <h1>Olá, {primeiroNome(conta?.nome)}.</h1>
         <p className="fraco pequeno" style={{ marginTop: -6 }}>{conta?.empresa}{conta?.setor ? ` · ${conta.setor}` : ''}{email ? ` · ${email}` : ''}</p>
         <button className="btn btn-texto" style={{ justifyContent: 'flex-start', paddingLeft: 0, marginTop: -8 }} onClick={() => { setNome(conta?.nome ?? ''); setFolha('nome'); }}><Lapis />Mudar meu nome</button>
 
-        <div className="cartao destaque" style={{ marginTop: 4 }}>
-          <h3 style={{ fontSize: 19 }}>Sua empresa nunca vê o que você escreve aqui.</h3>
+        <div className="heroi noite" style={{ marginTop: 4 }}>
+          <i className="bolha b1" /><h3 style={{ fontSize: 18, fontFamily: 'var(--display)', fontWeight: 600 }}>Sua empresa nunca vê o que você escreve aqui.</h3>
           <p>Nem o RH, nem a sua chefia.</p>
         </div>
 
         <h2>Quem vê o que você registra</h2>
         <div className="cartao">
-          <div className="quem"><div className="ico"><Pessoa /></div><div><b>Você</b><p>Tudo o que escreveu e respondeu.</p></div></div>
-          <div className="quem"><div className="ico"><Cadeado /></div><div><b>O profissional que cuida de você</b><p>Sob sigilo, para acompanhar a sua história ao longo do tempo.</p></div></div>
-          <div className="quem nunca"><div className="ico"><OlhoNao /></div><div><b>Sua empresa, seu RH e sua chefia — nunca</b><p>Recebem só números do grupo inteiro, sem nome, e apenas quando há pelo menos 12 pessoas no mesmo recorte.</p></div></div>
+          <div className="quem"><div className="ico voce"><Pessoa /></div><div><b>Você</b><p>Tudo o que escreveu e respondeu.</p></div></div>
+          <div className="quem"><div className="ico pro"><Cadeado /></div><div><b>O profissional que cuida de você</b><p>Sob sigilo, para acompanhar a sua história ao longo do tempo.</p></div></div>
+          <div className="quem nunca"><div className="ico nunca"><OlhoNao /></div><div><b>Sua empresa, seu RH e sua chefia — nunca</b><p>Recebem só números do grupo inteiro, sem nome, e apenas quando há pelo menos 12 pessoas no mesmo recorte.</p></div></div>
         </div>
         <details className="detalhes" style={{ marginTop: 10 }}>
           <summary>Entenda melhor</summary>
@@ -54,10 +54,10 @@ export function Eu() {
         </details>
 
         <h2>Na sua tela</h2>
-        <LinhaAcao icone={<Celular />} titulo="Colocar o Contigo na tela" sub="Ver o passo a passo de novo" para="/instalar" />
+        <LinhaAcao icone={<Celular />} tom="ambar" titulo="Colocar o Contigo na tela" sub="Ver o passo a passo de novo" para="/instalar" />
 
         <h2>Seus dados</h2>
-        <LinhaAcao icone={<Lixo />} titulo="Apagar tudo o que registrei" sub="Não tem volta, e é seu direito." onClick={() => setFolha('apagar')} />
+        <LinhaAcao icone={<Lixo />} tom="uva" titulo="Apagar tudo o que registrei" sub="Não tem volta, e é seu direito." onClick={() => setFolha('apagar')} />
         <button className="btn btn-texto" style={{ marginTop: 10 }} onClick={async () => { await dados.sair(); nav('/entrar', { replace: true }); }}>Sair da conta</button>
 
         {demo

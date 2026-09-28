@@ -110,6 +110,11 @@ export class DadosDemo implements Dados {
   }
 
   async checkinsDeHoje(data: string) { return this.e.checkins.filter(c => c.data === data); }
+  async historico(dias: number) {
+    const d = new Date(); d.setDate(d.getDate() - dias);
+    const desde = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return this.e.checkins.filter(c => c.data >= desde).sort((a, b) => a.data.localeCompare(b.data));
+  }
   async gravarCheckin(c: Checkin) {
     this.e.checkins = this.e.checkins.filter(x => !(x.data === c.data && x.momento === c.momento)).concat(c); this.salvar();
   }

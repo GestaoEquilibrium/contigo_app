@@ -29,8 +29,10 @@ export const Lapis = (p: P) => <svg {...base} {...p}><path d="M4 20l4-1 11-11-3-
 export const Envelope = (p: P) => <svg {...base} {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>;
 export const Bussola = (p: P) => <svg {...base} {...p}><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></svg>;
 
-/** Carinha do humor: 1 = pesado … 5 = leve */
-export function Carinha({ n }: { n: number }) {
+/** Carinha do humor: 1 = pesado … 5 = leve, cada uma com a sua cor (ameixa → âmbar) */
+const COR_HUMOR = ['#7B4B9E', '#EF5A8C', '#E2563C', '#F58A3C', '#F5A524'];
+const FUNDO_HUMOR = ['#E9DDF4', '#FFD1DF', '#FBE4DC', '#FFE3CF', '#FFF1D6'];
+export function Carinha({ n, viva }: { n: number; viva?: boolean }) {
   const bocas: Record<number, string> = {
     1: 'M15 31c2-4 6-6 9-6s7 2 9 6 M13 16l6 2 M35 16l-6 2',
     2: 'M16 30c2-2.5 5-4 8-4s6 1.5 8 4',
@@ -38,22 +40,24 @@ export function Carinha({ n }: { n: number }) {
     4: 'M16 27c2 2.5 5 4 8 4s6-1.5 8-4',
     5: 'M14 26c2.5 5 6 7 10 7s7.5-2 10-7',
   };
+  const cor = COR_HUMOR[n - 1] ?? COR_HUMOR[2];
   return (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--coral600)' }}>
-      <circle cx="24" cy="24" r="20" fill="var(--coral-tint)" />
-      <circle cx="17.5" cy="20" r="1.8" fill="currentColor" stroke="none" /><circle cx="30.5" cy="20" r="1.8" fill="currentColor" stroke="none" />
+    <svg viewBox="0 0 48 48" fill="none" stroke={viva ? '#fff' : cor} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="24" cy="24" r="21" fill={viva ? cor : FUNDO_HUMOR[n - 1]} stroke="none" />
+      <circle cx="17.5" cy="20" r="1.9" fill={viva ? '#fff' : cor} stroke="none" /><circle cx="30.5" cy="20" r="1.9" fill={viva ? '#fff' : cor} stroke="none" />
       <path d={bocas[n] ?? bocas[3]} />
     </svg>
   );
 }
 
-/** Barras da energia: 1 a 5 cheias */
+/** Barras da energia: 1 a 5 cheias, em degradê âmbar → coral */
 export function Barras({ n }: { n: number }) {
+  const cores = ['#FFD166', '#F5A524', '#F58A3C', '#E2563C', '#C4432D'];
   return (
     <svg viewBox="0 0 48 48">
       {[1, 2, 3, 4, 5].map(i => {
         const h = 8 + i * 6;
-        return <rect key={i} x={4 + (i - 1) * 8.5} y={40 - h} width="6" height={h} rx="2" fill={i <= n ? 'var(--coral500)' : 'var(--linha)'} />;
+        return <rect key={i} x={4 + (i - 1) * 8.5} y={40 - h} width="6" height={h} rx="2" fill={i <= n ? cores[n - 1] : 'var(--linha)'} />;
       })}
     </svg>
   );

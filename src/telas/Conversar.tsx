@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Carregando, Erro, FluxoTopo, LinhaAcao, Moldura, Opcao, Selo } from '../componentes/base';
@@ -27,7 +28,7 @@ export function Conversar() {
 
   return (
     <Moldura comTopo comAbas>
-      <div className="entra">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1>Vamos conversar</h1>
         <p className="lead">Uma conversa com um psicólogo, no seu ritmo: você escreve quando dá, e uma pessoa de verdade responde.</p>
         <details className="detalhes">
@@ -36,7 +37,7 @@ export function Conversar() {
           <p>Do outro lado tem um profissional inscrito no Conselho Regional de Psicologia — não um robô, não um voluntário.</p>
         </details>
         <Erro msg={erro} />
-        <div className="cartao suave" style={{ marginTop: 12 }}>
+        <div className="cartao ameixa" style={{ marginTop: 12 }}>
           <h3>{conta?.camada2 ? 'Ainda não abriu' : 'Sua empresa ainda não contratou esta parte'}</h3>
           <p>Só abrimos quando tiver alguém para responder no tempo combinado. Escrever para alguém e não ter resposta machuca mais do que não ter para quem escrever.</p>
           {dado && (
@@ -46,12 +47,12 @@ export function Conversar() {
           )}
         </div>
         <h2>Enquanto isso</h2>
-        <LinhaAcao icone={<Pessoas />}
+        <LinhaAcao icone={<Pessoas />} tom="rosa"
           titulo={dado?.afinidade ? 'Quem combina com você' : 'Encontrar quem combina com você'}
           sub={dado?.afinidade ? 'Você já respondeu. Toque para ver ou refazer.' : 'Sete perguntas rápidas sobre como você quer ser cuidado(a)'}
           onClick={() => nav(dado?.afinidade ? '/conversar/afinidade/pronto' : '/conversar/afinidade/1')} />
-        <LinhaAcao icone={<Boia />} classe="urgente" titulo="Preciso de ajuda agora" sub="Se estiver apertado de verdade, existe caminho — sem esperar por nada." para="/ajuda" />
-      </div>
+        <LinhaAcao icone={<Boia />} tom="uva" titulo="Preciso de ajuda agora" sub="Se estiver apertado de verdade, existe caminho — sem esperar por nada." para="/ajuda" />
+      </motion.div>
     </Moldura>
   );
 }
@@ -77,16 +78,16 @@ export function AfinidadeTela() {
 
   return (
     <Moldura>
-      <div className="entra" key={i}>
+      <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <FluxoTopo aoVoltar={() => (i === 0 ? nav('/conversar') : nav(`/conversar/afinidade/${i}`))} total={AFINIDADE.length} atual={i} />
         <p className="fraco pequeno" style={{ marginBottom: 2 }}>Pergunta {i + 1} de {AFINIDADE.length}</p>
-        <h1>{q.q}</h1>
+        <h1 className="grande">{q.q}</h1>
         {q.nota && <p className="fraco">{q.nota}</p>}
         <Erro msg={erro} />
         <div className="opcoes">
           {q.o.map(o => <Opcao key={o} marcada={atual[q.chave] === o} onClick={() => responder(o)}>{o}</Opcao>)}
         </div>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }
@@ -97,9 +98,9 @@ export function AfinidadePronto() {
   if (carregando) return <Moldura><Carregando /></Moldura>;
   return (
     <Moldura>
-      <div className="entra">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <FluxoTopo voltar="/conversar" />
-        <Selo />
+        <Selo confete={false} />
         <h1 className="centro">Obrigado por contar.</h1>
         <p className="lead centro">Quando a conversa abrir, a gente já sabe quem sugerir para você.</p>
         {dado && <p className="fraco centro pequeno">Você disse: {dado.jeito?.toLowerCase()} · {dado.canal?.toLowerCase()}.</p>}
@@ -114,7 +115,7 @@ export function AfinidadePronto() {
           <div className="tags"><span>mensagem</span><span>áudio</span><span>vídeo</span><span>pessoalmente</span></div>
         </div>
         <button className="btn btn-texto" style={{ marginTop: 10 }} onClick={() => nav('/conversar/afinidade/1')}>Responder de novo</button>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }

@@ -87,6 +87,7 @@ export interface Dados {
 
   // ritual
   checkinsDeHoje(data: string): Promise<Checkin[]>;
+  historico(dias: number): Promise<Checkin[]>;            // últimos N dias, para a semana colorida
   gravarCheckin(c: Checkin): Promise<void>;
   praticas(): Promise<Pratica[]>;
   praticasFeitasHoje(data: string): Promise<string[]>;   // ids de prática

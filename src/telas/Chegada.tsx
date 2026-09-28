@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Carregando, Erro, FluxoTopo, Moldura, Selo } from '../componentes/base';
@@ -59,16 +60,16 @@ export function Chegada() {
   if (etapa === 'boasvindas') {
     return (
       <Moldura>
-        <div className="entra">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="marca-grande"><Coracao /></div>
           <p className="wordmark">Contigo</p>
           <p className="assinatura">Conte comigo. Estou com você.</p>
-          <h1 style={{ marginTop: 22 }}>Oi. Que bom que você veio.</h1>
+          <h1 className="grande" style={{ marginTop: 22 }}>Oi. Que bom que você veio.</h1>
           <p className="lead">A sua empresa colocou o Contigo à sua disposição. Ele é seu — e só seu.</p>
           <p className="lead">O que você escreve aqui, ninguém do seu trabalho vê. Nem seu chefe, nem o RH.</p>
           <div className="pe"><button className="btn btn-coral" onClick={() => setEtapa('email')}>Vamos começar</button></div>
           <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
-        </div>
+        </motion.div>
       </Moldura>
     );
   }
@@ -76,7 +77,7 @@ export function Chegada() {
   if (etapa === 'email') {
     return (
       <Moldura>
-        <form className="entra" onSubmit={enviar}>
+        <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={enviar}>
           {!token && <><div className="marca-grande"><Coracao /></div><p className="wordmark">Contigo</p></>}
           {demo && <span className="selo-demo">Demonstração · dados só neste aparelho</span>}
           <h1>Qual é o seu e-mail?</h1>
@@ -89,7 +90,7 @@ export function Chegada() {
             <button className="btn btn-texto" type="button" onClick={() => { setErro(null); setEtapa('senha'); }}>Tenho uma senha</button>
           </div>
           <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
-        </form>
+        </motion.form>
       </Moldura>
     );
   }
@@ -97,7 +98,7 @@ export function Chegada() {
   if (etapa === 'senha') {
     return (
       <Moldura>
-        <form className="entra" onSubmit={entrarSenha}>
+        <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={entrarSenha}>
           <FluxoTopo aoVoltar={() => { setEtapa('email'); setErro(null); }} rotulo="Voltar" />
           <h1>Entrar com senha</h1>
           <p className="fraco">Para quem recebeu uma senha da equipe do Contigo. Colaboradores entram pelo código no e-mail.</p>
@@ -107,14 +108,14 @@ export function Chegada() {
             value={senha} onChange={e => setSenha(e.target.value)} autoFocus />
           <Erro msg={erro} />
           <div className="pe"><button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Entrando…' : 'Entrar'}</button></div>
-        </form>
+        </motion.form>
       </Moldura>
     );
   }
 
   return (
     <Moldura>
-      <form className="entra" onSubmit={confirmar}>
+      <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={confirmar}>
         <FluxoTopo aoVoltar={() => { setEtapa('email'); setErro(null); }} rotulo="Trocar e-mail" />
         <h1>Olhe o seu e-mail</h1>
         <p className="fraco">Mandamos um código de seis números para <b>{email}</b>. Pode levar um minuto.</p>
@@ -126,7 +127,7 @@ export function Chegada() {
           <button className="btn btn-texto" type="button" onClick={() => enviar()} disabled={ocupado}>Não chegou? Mandar de novo</button>
         </div>
         {!demo && <p className="nota">Se em vez de código veio um <b>link</b>, é só tocar nele — ele te traz de volta para cá, já dentro.</p>}
-      </form>
+      </motion.form>
     </Moldura>
   );
 }
@@ -165,12 +166,12 @@ export function Ativar() {
     nav('/consentir', { replace: true });
   };
 
-  if (estado === 'ativando') return <Moldura><Carregando texto="Ligando você à sua empresa…" /></Moldura>;
+  if (estado === 'ativando') return <Moldura><Carregando /></Moldura>;
 
   if (estado === 'erro') {
     return (
       <Moldura>
-        <div className="entra">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <h1>Não deu para usar este convite</h1>
           <p className="erro">{msg}</p>
           <p className="fraco">Você entrou como <b>{email}</b>. O convite só vale para o e-mail que a empresa cadastrou.</p>
@@ -179,19 +180,19 @@ export function Ativar() {
             <button className="btn btn-texto" onClick={() => { local.apagar(CHAVE_CONVITE); nav('/', { replace: true }); }}>Deixar para depois</button>
           </div>
           <p className="nota">Se o convite venceu, peça um novo para o RH da sua empresa.</p>
-        </div>
+        </motion.div>
       </Moldura>
     );
   }
 
   return (
     <Moldura>
-      <div className="entra">
-        <Selo />
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <Selo confete={false} />
         <h1 className="centro">Pronto, {resultado?.nome}.</h1>
         <p className="lead centro">Você está ligado(a) à <b>{resultado?.empresa}</b>. Falta só você concordar com o que o Contigo faz com o que você registra.</p>
         <div className="pe"><button className="btn btn-coral" onClick={continuar}>Continuar</button></div>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }
@@ -218,12 +219,12 @@ export function Consentir() {
 
   return (
     <Moldura>
-      <div className="entra">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1>Antes de começar, três coisas</h1>
         <div className="cartao">
-          <div className="quem"><div className="ico"><Cadeado /></div><div><b>O que você responde fica com você</b><p>E com o profissional de psicologia que cuida de você, sob sigilo.</p></div></div>
-          <div className="quem nunca"><div className="ico"><OlhoNao /></div><div><b>Sua empresa nunca vê o seu nome</b><p>Ela só recebe números do grupo inteiro, sem nome, e só quando há pelo menos 12 pessoas.</p></div></div>
-          <div className="quem"><div className="ico"><Lixo /></div><div><b>Você pode apagar tudo quando quiser</b><p>Na aba "Eu", com um toque.</p></div></div>
+          <div className="quem"><div className="ico voce"><Cadeado /></div><div><b>O que você responde fica com você</b><p>E com o profissional de psicologia que cuida de você, sob sigilo.</p></div></div>
+          <div className="quem nunca"><div className="ico nunca"><OlhoNao /></div><div><b>Sua empresa nunca vê o seu nome</b><p>Ela só recebe números do grupo inteiro, sem nome, e só quando há pelo menos 12 pessoas.</p></div></div>
+          <div className="quem"><div className="ico pro"><Lixo /></div><div><b>Você pode apagar tudo quando quiser</b><p>Na aba "Eu", com um toque.</p></div></div>
         </div>
         <details className="detalhes" style={{ marginTop: 12 }}>
           <summary>Ler o texto completo</summary>
@@ -231,7 +232,7 @@ export function Consentir() {
         </details>
         <Erro msg={erro} />
         <div className="pe"><button className="btn btn-coral" onClick={concordar} disabled={!texto || ocupado}><Ok />{ocupado ? 'Guardando…' : 'Concordo e quero começar'}</button></div>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }
@@ -248,12 +249,12 @@ export function Instalar() {
   if (instalado) {
     return (
       <Moldura>
-        <div className="entra">
-          <Selo />
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          <Selo confete={false} />
           <h1 className="centro">O Contigo já está na sua tela.</h1>
           <p className="lead centro">Ele fica a um toque, como qualquer app.</p>
           <div className="pe"><button className="btn btn-coral" onClick={sair}>Continuar</button></div>
-        </div>
+        </motion.div>
       </Moldura>
     );
   }
@@ -272,10 +273,11 @@ export function Instalar() {
 
   return (
     <Moldura>
-      <div className="entra">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1>Coloque o Contigo na sua tela</h1>
         <p className="fraco">Assim ele fica a um toque, como qualquer app.</p>
         <div className="plataforma" role="tablist">
+          <motion.i className="marcador" animate={{ left: plat === 'ios' ? 4 : 'calc(50% + 2px)' }} transition={{ type: 'spring', stiffness: 500, damping: 38 }} />
           <button className={plat === 'ios' ? 'ativa' : ''} onClick={() => setPlat('ios')}>iPhone</button>
           <button className={plat === 'android' ? 'ativa' : ''} onClick={() => setPlat('android')}>Android</button>
         </div>
@@ -288,7 +290,7 @@ export function Instalar() {
           <button className="btn btn-coral" onClick={sair}>Já coloquei na tela</button>
           <button className="btn btn-texto" onClick={sair}>Fazer isso depois</button>
         </div>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }
@@ -302,7 +304,7 @@ export function SemAcesso() {
   const inativo = conta?.vinculo === 'inativo';
   return (
     <Moldura>
-      <div className="entra">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="marca-grande"><Coracao /></div>
         <h1>{inativo ? 'O seu acesso foi encerrado' : 'Falta o convite da sua empresa'}</h1>
         <p className="lead">
@@ -314,7 +316,7 @@ export function SemAcesso() {
         <div className="pe">
           <button className="btn btn-leve" onClick={async () => { await dados.sair(); nav('/entrar', { replace: true }); }}>Entrar com outro e-mail</button>
         </div>
-      </div>
+      </motion.div>
     </Moldura>
   );
 }

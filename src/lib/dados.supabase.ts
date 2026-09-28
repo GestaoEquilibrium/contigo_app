@@ -112,6 +112,14 @@ export class DadosSupabase implements Dados {
     if (error) throw traduzir(error);
     return (rows ?? []) as Checkin[];
   }
+  async historico(dias: number): Promise<Checkin[]> {
+    const { pessoaId } = await this.ids();
+    const d = new Date(); d.setDate(d.getDate() - dias);
+    const desde = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const { data: rows, error } = await this.clinico.from('checkins').select('data, momento, humor, energia, intencao').eq('pessoa_id', pessoaId).gte('data', desde).order('data');
+    if (error) throw traduzir(error);
+    return (rows ?? []) as Checkin[];
+  }
   async gravarCheckin(c: Checkin) {
     const { pessoaId, membroId } = await this.ids();
     const { error } = await this.clinico.from('checkins').upsert(

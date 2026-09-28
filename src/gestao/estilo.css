@@ -1,7 +1,7 @@
 /* ===== Contigo · Gestão — coral quente sobre quase-branco, layout de computador ===== */
 .gestao{
-  --papel:#FDFAF8; --areia:#FAF3EF; --cartao:#FFFFFF;
-  --tinta:#6B534B; --tinta-fraca:#A08880; --linha:#F0E4DD;
+  --papel:#FFF9F4; --areia:#FBEFE6; --cartao:#FFFFFF;
+  --tinta:#3F2B26; --tinta-fraca:#8C7069; --linha:#F1E3DA; --ambar:#F5A524; --ambar-tint:#FFF1D6; --rosa:#EF5A8C; --rosa-cl:#FFD1DF; --ameixa:#7B4B9E; --ameixa-cl:#E9DDF4;
   --coral500:#E2563C; --coral600:#C4432D; --coral800:#7E2417;
   --coral-tint:#FBE9E3; --coral-tint2:#F6D5CB;
   --fonte:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -109,3 +109,10 @@
 .gestao .gabas button.ativa{ background:var(--cartao); color:var(--coral600); box-shadow:0 2px 6px rgba(107,83,75,.10); }
 .gestao .gcarregando{ padding:40px; text-align:center; color:var(--tinta-fraca); }
 .gestao .gcartao h3 svg{ width:18px; height:18px; vertical-align:-3px; margin-right:6px; }
+
+/* cor com significado nos indicadores do painel */
+.gestao .gcartao.kpi-adesao{ border-top:4px solid var(--ambar); }
+.gestao .gcartao.kpi-humor{ border-top:4px solid var(--coral500); }
+.gestao .gcartao.kpi-energia{ border-top:4px solid var(--rosa); }
+.gestao .gcartao.kpi-escala{ border-top:4px solid var(--ameixa); }
+.gestao .lateral .marca{ font-family:var(--display, Georgia, serif); }

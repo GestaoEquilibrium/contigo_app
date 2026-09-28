@@ -57,7 +57,7 @@ export function Painel() {
           const l = empresaInteira.find(x => x.indicador === i.codigo);
           const ant = doAnterior.find(x => x.setorId === null && x.indicador === i.codigo);
           return (
-            <div className="gcartao" key={i.codigo}>
+            <div className={'gcartao kpi-' + (i.origem === 'escala' ? 'escala' : i.codigo)} key={i.codigo}>
               <h3>{i.nome}</h3>
               {l ? (
                 <>
