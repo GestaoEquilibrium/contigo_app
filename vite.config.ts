@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Contigo',
         short_name: 'Contigo',
-        description: 'Conte comigo. Estou com você.',
+        description: 'Conte comigo, estou contigo!',
         lang: 'pt-BR',
         start_url: '/',
         scope: '/',

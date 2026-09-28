@@ -63,7 +63,7 @@ export function Chegada() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="marca-grande"><Coracao /></div>
           <p className="wordmark">Contigo</p>
-          <p className="assinatura">Conte comigo. Estou com você.</p>
+          <p className="assinatura">Conte comigo, estou contigo!</p>
           <h1 className="grande" style={{ marginTop: 22 }}>Oi. Que bom que você veio.</h1>
           <p className="lead">A sua empresa colocou o Contigo à sua disposição. Ele é seu — e só seu.</p>
           <p className="lead">O que você escreve aqui, ninguém do seu trabalho vê. Nem seu chefe, nem o RH.</p>
