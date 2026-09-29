@@ -2,7 +2,8 @@ import { motion } from 'framer-motion';
 import { useState, type ReactElement } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CORES_HUMOR, Carregando, Erro, FluxoTopo, LinhaAcao, Moldura, Respiracao, Selo, Semana } from '../componentes/base';
-import { Carinha, Lapis, Lua, Sol, TrilhaIco, Vento } from '../componentes/icones';
+import { Carinha, Coracao, Lapis, Lua, Sol, TrilhaIco, Vento } from '../componentes/icones';
+import { dispensarLembrete, instalarDireto, useInstalacao } from '../lib/instalacao';
 import { dados } from '../lib/dados';
 import { useCarregar } from '../lib/hooks';
 import { useSessao } from '../lib/sessao';
@@ -28,6 +29,20 @@ function semana(historico: TCheckin[]) {
 }
 
 /* ========================= Hoje ========================= */
+/** Lembrete discreto: só aparece quando o navegador diz que dá para instalar e ainda não está na tela. */
+function LembreteInstalar() {
+  const { lembrar } = useInstalacao();
+  if (!lembrar) return null;
+  return (
+    <motion.div className="lembrete-instalar" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="icone-app"><Coracao /></div>
+      <p><b>Coloque o Contigo na tela.</b><br />Abre com um toque, como um app.</p>
+      <button className="btn btn-coral" onClick={() => { void instalarDireto(); }}>Instalar</button>
+      <button className="fechar" aria-label="Agora não" onClick={dispensarLembrete}>×</button>
+    </motion.div>
+  );
+}
+
 export function Hoje() {
   const { conta, demo } = useSessao();
   const nav = useNavigate();
@@ -65,6 +80,7 @@ export function Hoje() {
   return (
     <Moldura comTopo comAbas>
       {demo && <span className="selo-demo">Demonstração · dados só neste aparelho</span>}
+      <LembreteInstalar />
       <motion.section className={'heroi ' + momento} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
         <i className="bolha b1" /><i className="bolha b2" />
         <h1>{saudacao()}, {primeiroNome(conta?.nome)}.</h1>

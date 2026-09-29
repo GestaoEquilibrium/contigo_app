@@ -5,7 +5,8 @@ import { Carregando, Erro, FluxoTopo, Moldura, Selo } from '../componentes/base'
 import { Cadeado, Celular, Compartilhar, Coracao, Envelope, Lixo, Mais, Ok, OlhoNao, Pontos } from '../componentes/icones';
 import { dados } from '../lib/dados';
 import { useSessao } from '../lib/sessao';
-import { CHAVE_CONVITE, CHAVE_EMAIL, CHAVE_INSTALACAO_VISTA, ehIphone, estaInstalado, local } from '../lib/util';
+import { instalarDireto, useInstalacao } from '../lib/instalacao';
+import { CHAVE_CONVITE, CHAVE_EMAIL, CHAVE_INSTALACAO_VISTA, ehIphone, local } from '../lib/util';
 
 /* =========================================================================
    Chegada: boas-vindas → e-mail → código (ou link). Guarda o token do convite
@@ -238,22 +239,32 @@ export function Consentir() {
 }
 
 /* =========================================================================
-   Instalar: o gesto é diferente no iPhone e no Android, então mostramos os dois.
+   Instalar: no Android abrimos a caixa nativa de instalação; no iPhone o
+   caminho é Compartilhar → Adicionar à Tela de Início. Já instalado, só segue.
    ========================================================================= */
 export function Instalar() {
   const nav = useNavigate();
+  const { instalado, direto } = useInstalacao();
   const [plat, setPlat] = useState<'ios' | 'android'>(ehIphone() ? 'ios' : 'android');
-  const instalado = estaInstalado();
+  const [estado, setEstado] = useState<'inicio' | 'abrindo' | 'aceito' | 'recusado'>('inicio');
   const sair = () => { local.gravar(CHAVE_INSTALACAO_VISTA, true); nav('/', { replace: true }); };
 
-  if (instalado) {
+  const instalarAgora = async () => {
+    setEstado('abrindo');
+    const r = await instalarDireto();
+    setEstado(r === 'aceito' ? 'aceito' : 'recusado');
+  };
+
+  if (instalado || estado === 'aceito') {
     return (
       <Moldura>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          <Selo confete={false} />
-          <h1 className="centro">O Contigo já está na sua tela.</h1>
-          <p className="lead centro">Ele fica a um toque, como qualquer app.</p>
-          <div className="pe"><button className="btn btn-coral" onClick={sair}>Continuar</button></div>
+          <Selo confete={estado === 'aceito'} />
+          <h1 className="centro">{estado === 'aceito' ? 'Pronto! O Contigo está na sua tela.' : 'O Contigo já está na sua tela.'}</h1>
+          <p className="lead centro">{estado === 'aceito'
+            ? 'Agora abra pelo ícone, como qualquer app — você já está conectado(a) lá.'
+            : 'Ele fica a um toque, como qualquer app.'}</p>
+          <div className="pe"><button className="btn btn-coral" onClick={sair}>Continuar por aqui</button></div>
         </motion.div>
       </Moldura>
     );
@@ -275,19 +286,51 @@ export function Instalar() {
     <Moldura>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1>Coloque o Contigo na sua tela</h1>
-        <p className="fraco">Assim ele fica a um toque, como qualquer app.</p>
-        <div className="plataforma" role="tablist">
-          <motion.i className="marcador" animate={{ left: plat === 'ios' ? 4 : 'calc(50% + 2px)' }} transition={{ type: 'spring', stiffness: 500, damping: 38 }} />
-          <button className={plat === 'ios' ? 'ativa' : ''} onClick={() => setPlat('ios')}>iPhone</button>
-          <button className={plat === 'android' ? 'ativa' : ''} onClick={() => setPlat('android')}>Android</button>
-        </div>
-        <div className="cartao">
-          {passos.map(([ico, t, s], i) => (
-            <div className="passo-inst" key={i}><div className="num">{i + 1}</div><div className="ico">{ico}</div><p>{t}<span>{s}</span></p></div>
-          ))}
-        </div>
+        <p className="fraco">Assim ele abre com um toque, sem navegador, como qualquer app.</p>
+
+        {direto ? (
+          <>
+            <div className="cartao instalar-direto">
+              <div className="icone-app"><Coracao /></div>
+              <div>
+                <b>Contigo</b>
+                <p className="pequeno fraco" style={{ margin: 0 }}>{window.location.host}</p>
+              </div>
+              <motion.button whileTap={{ scale: 0.97 }} className="btn btn-coral" style={{ width: 'auto', minHeight: 40, padding: '0 16px' }}
+                disabled={estado === 'abrindo'} onClick={instalarAgora}>
+                {estado === 'abrindo' ? 'Abrindo…' : 'Instalar'}
+              </motion.button>
+            </div>
+            {estado === 'recusado' && <p className="pequeno fraco centro">Sem problema. Dá para fazer depois, na aba "Eu".</p>}
+            <details className="detalhes" style={{ marginTop: 12 }}>
+              <summary>Se o botão não aparecer ou não funcionar</summary>
+              <div className="cartao" style={{ marginTop: 8 }}>
+                {android.map(([ico, t, sub], i) => (
+                  <div className="passo-inst" key={i}><div className="num">{i + 1}</div><div className="ico">{ico}</div><p>{t}<span>{sub}</span></p></div>
+                ))}
+              </div>
+            </details>
+          </>
+        ) : (
+          <>
+            <div className="plataforma" role="tablist">
+              <motion.i className="marcador" animate={{ left: plat === 'ios' ? 4 : 'calc(50% + 2px)' }} transition={{ type: 'spring', stiffness: 500, damping: 38 }} />
+              <button className={plat === 'ios' ? 'ativa' : ''} onClick={() => setPlat('ios')}>iPhone</button>
+              <button className={plat === 'android' ? 'ativa' : ''} onClick={() => setPlat('android')}>Android</button>
+            </div>
+            <div className="cartao">
+              {passos.map(([ico, t, sub], i) => (
+                <div className="passo-inst" key={i}><div className="num">{i + 1}</div><div className="ico">{ico}</div><p>{t}<span>{sub}</span></p></div>
+              ))}
+            </div>
+            {plat === 'ios' && (
+              <p className="nota" style={{ marginTop: 10 }}>Se você abriu este link pelo WhatsApp ou pelo Instagram, toque primeiro em "Abrir no Safari" — o botão Compartilhar só aparece lá.</p>
+            )}
+          </>
+        )}
+
         <div className="pe">
-          <button className="btn btn-coral" onClick={sair}>Já coloquei na tela</button>
+          {!direto && <button className="btn btn-coral" onClick={sair}>Já coloquei na tela</button>}
           <button className="btn btn-texto" onClick={sair}>Fazer isso depois</button>
         </div>
       </motion.div>

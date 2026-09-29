@@ -228,6 +228,17 @@ p{ margin:0 0 9px; }
 .plataforma button{ flex:1; min-height:36px; border:0; border-radius:10px; background:none; font-weight:700; font-size:14px; color:var(--tinta-fraca); cursor:pointer; position:relative; z-index:1; }
 .plataforma button.ativa{ color:var(--coral-esc); }
 .plataforma .marcador{ position:absolute; top:4px; bottom:4px; width:calc(50% - 6px); border-radius:10px; background:var(--cartao); box-shadow:0 2px 6px rgba(63,43,38,.10); }
+.instalar-direto{ display:flex; align-items:center; gap:12px; padding:12px 14px; }
+.instalar-direto .icone-app{ width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,var(--laranja),var(--coral) 55%,var(--rosa)); color:#fff; display:flex; align-items:center; justify-content:center; flex:none; box-shadow:0 6px 14px -6px rgba(196,67,45,.6); }
+.instalar-direto .icone-app svg{ width:24px; height:24px; }
+.instalar-direto > div:nth-child(2){ flex:1; min-width:0; }
+.instalar-direto b{ font-size:16px; display:block; }
+.lembrete-instalar{ display:flex; align-items:center; gap:10px; background:var(--ambar-tint); border:1px solid #F5D9A6; border-radius:14px; padding:10px 12px; margin:0 0 12px; }
+.lembrete-instalar .icone-app{ width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,var(--laranja),var(--coral) 55%,var(--rosa)); color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+.lembrete-instalar .icone-app svg{ width:17px; height:17px; }
+.lembrete-instalar p{ margin:0; font-size:13.5px; line-height:1.3; flex:1; }
+.lembrete-instalar .btn{ width:auto; min-height:34px; padding:0 12px; font-size:13.5px; }
+.lembrete-instalar .fechar{ background:none; border:0; color:var(--tinta-fraca); font-size:18px; line-height:1; padding:4px; cursor:pointer; }
 .passo-inst{ display:flex; gap:11px; align-items:center; padding:10px 0; border-bottom:1px solid var(--linha); }
 .passo-inst:last-child{ border-bottom:0; }
 .passo-inst .num{ width:26px; height:26px; border-radius:50%; background:var(--coral); color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; font-size:13px; }
