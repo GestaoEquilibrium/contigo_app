@@ -52,7 +52,7 @@ export function Chegada() {
 
   const confirmar = async (e?: FormEvent) => {
     e?.preventDefault();
-    if (!demo && codigo.replace(/\D/g, '').length < 6) { setErro('O código tem seis números.'); return; }
+    if (!demo && codigo.replace(/\D/g, '').length < 6) { setErro('Digite o código inteiro, como está no e-mail.'); return; }
     setOcupado(true); setErro(null);
     try { await dados.confirmarCodigo(email.trim().toLowerCase(), codigo || '000000'); }
     catch (err) { setErro((err as Error).message); setOcupado(false); }
@@ -119,8 +119,8 @@ export function Chegada() {
       <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={confirmar}>
         <FluxoTopo aoVoltar={() => { setEtapa('email'); setErro(null); }} rotulo="Trocar e-mail" />
         <h1>Olhe o seu e-mail</h1>
-        <p className="fraco">Mandamos um código de seis números para <b>{email}</b>. Pode levar um minuto.</p>
-        <input className="campo codigo" inputMode="numeric" autoComplete="one-time-code" placeholder="000000" maxLength={6}
+        <p className="fraco">Mandamos um código para <b>{email}</b>. Pode levar um minuto.</p>
+        <input className="campo codigo" inputMode="numeric" autoComplete="one-time-code" placeholder="000000" maxLength={10}
           value={codigo} onChange={e => setCodigo(e.target.value)} autoFocus />
         <Erro msg={erro} />
         <div className="pe">
