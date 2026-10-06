@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { Aviso, BotaoCopiar, Cabeca, Carregando, Erro, Ico, Modal, Vazio } from '../componentes/base';
+import { motion } from 'framer-motion';
+import { Avatar, Aviso, BotaoCopiar, Cabeca, Carregando, Confirmar, Erro, Ico, Modal, Progresso, Vazio } from '../componentes/base';
 import { dados } from '../lib/dados';
 import { useCarregar } from '../lib/hooks';
 import { useSessao } from '../lib/sessao';
@@ -23,6 +24,7 @@ export function Funcionarios() {
   const [links, setLinks] = useState<{ nome: string; email: string; url: string; erro?: string }[] | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [erroAcao, setErroAcao] = useState<string | null>(null);
+  const [desativando, setDesativando] = useState<Membro | null>(null);
 
   const lista = useMemo(() => {
     const b = busca.trim().toLowerCase();
@@ -37,10 +39,8 @@ export function Funcionarios() {
     catch (e) { setErroAcao((e as Error).message); }
   };
   const desativar = async (m: Membro) => {
-    if (!confirm(`Desativar o acesso de ${m.nome}? A pessoa deixa de entrar no app e a licença é liberada. O que ela registrou continua com ela e com o profissional — a empresa nunca vê.`)) return;
     setErroAcao(null);
-    try { await dados.alterarMembro(m.id, { status: 'inativo' }); setAviso(`${m.nome} desativado(a).`); recarregar(); }
-    catch (e) { setErroAcao((e as Error).message); }
+    await dados.alterarMembro(m.id, { status: 'inativo' }); setAviso(`${m.nome} desativado(a).`); recarregar();
   };
   const mudarSetor = async (m: Membro, setorId: string) => {
     setErroAcao(null);
@@ -55,29 +55,51 @@ export function Funcionarios() {
 
   return (
     <>
-      <Cabeca titulo="Funcionários" sub={<>Quem tem acesso ao app. {uso.licencas != null && <b>{ocupadas} de {uso.licencas} licenças</b>} — {uso.ativos} já entraram, {uso.convidados} ainda não.</>}>
+      <Cabeca olho={atual!.empresa.nome} titulo="Funcionários" sub="Quem tem acesso ao app, em que setor, e se já entrou. Cadastro — nunca prontuário.">
         <button className="gbtn gbtn-leve" onClick={() => setModal('varios')}><Ico.pessoas />Convidar vários</button>
         <button className="gbtn gbtn-coral" onClick={() => setModal('um')}><Ico.mais />Convidar</button>
       </Cabeca>
       <Erro msg={erroAcao} /><Aviso msg={aviso} />
 
-      <div className="gcartao gsuave" style={{ marginBottom: 14 }}>
-        <b>O que a empresa vê aqui:</b> nome, e-mail, setor e se a pessoa já entrou. <b>O que nunca vê:</b> humor, respostas, práticas, conversas — nada do que a pessoa registra. Isso não é uma tela escondida: o banco não entrega.
+      <div className="grade" style={{ marginBottom: 16 }}>
+        <motion.div className="gcartao kpi" style={{ '--cor': 'var(--coral)' } as React.CSSProperties} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+          <h3><span className="ico"><Ico.contrato /></span>Licenças</h3>
+          <div className="numero">{ocupadas}{uso.licencas != null && <small>de {uso.licencas}</small>}</div>
+          {uso.licencas != null && <Progresso valor={ocupadas} max={uso.licencas} cor="linear-gradient(90deg,var(--coral),var(--laranja))" />}
+        </motion.div>
+        <motion.div className="gcartao kpi" style={{ '--cor': 'var(--ambar)' } as React.CSSProperties} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <h3><span className="ico"><Ico.ok /></span>Já entraram</h3>
+          <div className="numero">{uso.ativos}<small>{uso.ativos === 1 ? 'pessoa' : 'pessoas'}</small></div>
+          <span className="tendencia">colocaram o Contigo na tela</span>
+        </motion.div>
+        <motion.div className="gcartao kpi" style={{ '--cor': 'var(--rosa)' } as React.CSSProperties} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <h3><span className="ico"><Ico.link /></span>Aguardando</h3>
+          <div className="numero">{uso.convidados}<small>{uso.convidados === 1 ? 'convite' : 'convites'}</small></div>
+          <span className="tendencia">ainda não abriram o link</span>
+        </motion.div>
       </div>
 
-      <input className="gcampo" placeholder="Buscar por nome, e-mail ou setor" value={busca} onChange={e => setBusca(e.target.value)} style={{ marginBottom: 12 }} />
+      <div className="nota-privada">
+        <span className="ico"><Ico.olhonao /></span>
+        <div><b>O que a empresa vê aqui:</b> nome, e-mail, setor e se a pessoa já entrou. <b>O que nunca vê:</b> humor, respostas, práticas, conversas — nada do que a pessoa registra. Não é uma tela escondida: o banco não entrega.</div>
+      </div>
 
-      {lista.length === 0 ? <Vazio>{dado!.membros.length === 0 ? 'Ninguém convidado ainda. Comece por "Convidar".' : 'Nada com esse texto.'}</Vazio> : (
+      <div className="busca" style={{ marginBottom: 12 }}><Ico.pessoas /><input className="gcampo" placeholder="Buscar por nome, e-mail ou setor" value={busca} onChange={e => setBusca(e.target.value)} /></div>
+
+      {lista.length === 0 ? (
+        dado!.membros.length === 0
+          ? <Vazio icone={<Ico.pessoas />} titulo="Ninguém convidado ainda" acao={<><button className="gbtn gbtn-coral" onClick={() => setModal('um')}><Ico.mais />Convidar uma pessoa</button><button className="gbtn gbtn-leve" onClick={() => setModal('varios')}>Colar uma lista</button></>}>Cada pessoa recebe um link de ativação de uso único. Ela abre, lê o que é registrado e quem vê, aceita — e coloca o Contigo na tela do celular.</Vazio>
+          : <Vazio>Nada com esse texto.</Vazio>
+      ) : (
         <div className="rolagem">
           <table className="tabela">
-            <thead><tr><th>Nome</th><th>E-mail</th><th>Setor</th><th>Situação</th><th>Convidado</th><th>Entrou</th><th></th></tr></thead>
+            <thead><tr><th>Pessoa</th><th>Setor</th><th>Situação</th><th>Convidado</th><th>Entrou</th><th></th></tr></thead>
             <tbody>
               {lista.map(m => (
-                <tr key={m.id}>
-                  <td><b>{m.nome}</b></td>
-                  <td>{m.email}</td>
+                <tr key={m.id} style={m.status === 'inativo' ? { opacity: 0.55 } : undefined}>
+                  <td><div className="pessoa"><Avatar nome={m.nome} tam={34} /><div className="dados"><b>{m.nome}</b><span>{m.email}</span></div></div></td>
                   <td>
-                    <select className="gcampo" style={{ minHeight: 32, padding: '4px 8px' }} value={m.setorId ?? ''} onChange={e => mudarSetor(m, e.target.value)} disabled={m.status === 'inativo'}>
+                    <select className="gcampo" style={{ width: 'auto' }} value={m.setorId ?? ''} onChange={e => mudarSetor(m, e.target.value)} disabled={m.status === 'inativo'}>
                       <option value="">— sem setor —</option>
                       {dado!.setores.map(s => <option key={s.id} value={s.id}>{s.nome}</option>)}
                     </select>
@@ -88,7 +110,7 @@ export function Funcionarios() {
                   <td>
                     <div className="acoes-linha">
                       {m.status !== 'ativo' && <button className="gbtn gbtn-texto" onClick={() => reconvidar(m)}>{m.status === 'inativo' ? 'Reativar' : 'Novo link'}</button>}
-                      {m.status !== 'inativo' && <button className="gbtn gbtn-texto" onClick={() => desativar(m)}>Desativar</button>}
+                      {m.status !== 'inativo' && <button className="gbtn gbtn-texto" onClick={() => setDesativando(m)}>Desativar</button>}
                     </div>
                   </td>
                 </tr>
@@ -97,6 +119,10 @@ export function Funcionarios() {
           </table>
         </div>
       )}
+
+      <Confirmar aberto={!!desativando} fechar={() => setDesativando(null)} titulo={`Desativar ${desativando?.nome}?`} rotulo="Desativar" perigo
+        texto="A pessoa deixa de entrar no app e a licença é liberada. O que ela registrou continua com ela e com o profissional — a empresa nunca vê."
+        aoConfirmar={async () => { if (desativando) await desativar(desativando); }} />
 
       <ConvidarUm aberto={modal === 'um'} fechar={() => setModal(null)} empresaId={empresaId} setores={dado!.setores}
         aoConvidar={(nome, token) => { setModal(null); setLink({ nome, url: urlAtivacao(token) }); recarregar(); }} />

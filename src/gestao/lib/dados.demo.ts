@@ -75,7 +75,7 @@ export class DadosDemo implements DadosPortal {
   async sair() { this.email = null; this.ouvintes.forEach(f => f()); }
   async meusAcessos(): Promise<MeusAcessos> {
     await espera(60);
-    return { empresas: [{ empresa: this.empresasL[0], papel: 'admin' }], operacao: true, email: this.email ?? '' };
+    return { empresas: this.empresasL.map(e => ({ empresa: e, papel: 'admin' as const })), operacao: true, email: this.email ?? '' };
   }
 
   async indicadores() { return INDICADORES; }
