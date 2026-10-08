@@ -83,3 +83,4 @@ export const local = {
 export const CHAVE_CONVITE = 'contigo.convite';
 export const CHAVE_EMAIL = 'contigo.email';
 export const CHAVE_INSTALACAO_VISTA = 'contigo.instalacao-vista';
+export const CHAVE_DEFINIR_SENHA = 'contigo.definir-senha';   // pediu código para trocar a senha

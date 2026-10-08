@@ -6,17 +6,21 @@ import { Cadeado, Celular, Compartilhar, Coracao, Envelope, Lixo, Mais, Ok, Olho
 import { dados } from '../lib/dados';
 import { useSessao } from '../lib/sessao';
 import { instalarDireto, useInstalacao } from '../lib/instalacao';
-import { CHAVE_CONVITE, CHAVE_EMAIL, CHAVE_INSTALACAO_VISTA, ehIphone, local } from '../lib/util';
+import { CHAVE_CONVITE, CHAVE_DEFINIR_SENHA, CHAVE_EMAIL, CHAVE_INSTALACAO_VISTA, ehIphone, local } from '../lib/util';
 
 /* =========================================================================
-   Chegada: boas-vindas → e-mail → código (ou link). Guarda o token do convite
-   para depois do login.
+   Chegada.
+   Primeira vez (link de convite): boas-vindas → e-mail → código → criar senha.
+   Depois: e-mail + senha, e a pessoa fica conectada neste aparelho.
+   "Esqueci a senha" e "primeira vez" caem no código.
    ========================================================================= */
 export function Chegada() {
   const { token } = useParams();
   const { demo } = useSessao();
-  const [etapa, setEtapa] = useState<'boasvindas' | 'email' | 'codigo' | 'senha'>(token ? 'boasvindas' : 'email');
+  const [etapa, setEtapa] = useState<'boasvindas' | 'senha' | 'email' | 'codigo'>(token ? 'boasvindas' : 'senha');
+  const [motivo, setMotivo] = useState<'primeira' | 'esqueci'>(token ? 'primeira' : 'esqueci');
   const [senha, setSenha] = useState('');
+  const [verSenha, setVerSenha] = useState(false);
   const [email, setEmail] = useState(local.ler<string>(CHAVE_EMAIL, ''));
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -35,7 +39,7 @@ export function Chegada() {
     const em = emailOk(); if (!em) return;
     if (!senha) { setErro('Digite a senha.'); return; }
     setOcupado(true); setErro(null);
-    try { local.gravar(CHAVE_EMAIL, em); await dados.entrarComSenha(em, senha); }
+    try { local.gravar(CHAVE_EMAIL, em); local.apagar(CHAVE_DEFINIR_SENHA); await dados.entrarComSenha(em, senha); }
     catch (err) { setErro((err as Error).message); setOcupado(false); }
   };
 
@@ -54,9 +58,14 @@ export function Chegada() {
     e?.preventDefault();
     if (!demo && codigo.replace(/\D/g, '').length < 6) { setErro('Digite o código inteiro, como está no e-mail.'); return; }
     setOcupado(true); setErro(null);
-    try { await dados.confirmarCodigo(email.trim().toLowerCase(), codigo || '000000'); }
-    catch (err) { setErro((err as Error).message); setOcupado(false); }
+    try {
+      // Entrou pelo código: a próxima tela é criar (ou trocar) a senha.
+      local.gravar(CHAVE_DEFINIR_SENHA, true);
+      await dados.confirmarCodigo(email.trim().toLowerCase(), codigo || '000000');
+    } catch (err) { local.apagar(CHAVE_DEFINIR_SENHA); setErro((err as Error).message); setOcupado(false); }
   };
+
+  const irParaCodigo = (m: 'primeira' | 'esqueci') => { setMotivo(m); setErro(null); setEtapa('email'); };
 
   if (etapa === 'boasvindas') {
     return (
@@ -68,30 +77,12 @@ export function Chegada() {
           <h1 className="grande" style={{ marginTop: 22 }}>Oi. Que bom que você veio.</h1>
           <p className="lead">A sua empresa colocou o Contigo à sua disposição. Ele é seu — e só seu.</p>
           <p className="lead">O que você escreve aqui, ninguém do seu trabalho vê. Nem seu chefe, nem o RH.</p>
-          <div className="pe"><button className="btn btn-coral" onClick={() => setEtapa('email')}>Vamos começar</button></div>
-          <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
-        </motion.div>
-      </Moldura>
-    );
-  }
-
-  if (etapa === 'email') {
-    return (
-      <Moldura>
-        <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={enviar}>
-          {!token && <><div className="marca-grande"><Coracao /></div><p className="wordmark">Contigo</p></>}
-          {demo && <span className="selo-demo">Demonstração · dados só neste aparelho</span>}
-          <h1>Qual é o seu e-mail?</h1>
-          <p className="fraco">Use o mesmo que a sua empresa cadastrou. Vamos mandar um código para ele — sem senha para decorar.</p>
-          <input className="campo" type="email" inputMode="email" autoComplete="email" placeholder="nome@empresa.com.br"
-            value={email} onChange={e => setEmail(e.target.value)} autoFocus />
-          <Erro msg={erro} />
           <div className="pe">
-            <button className="btn btn-coral" type="submit" disabled={ocupado}><Envelope />{ocupado ? 'Enviando…' : 'Mandar o código'}</button>
-            <button className="btn btn-texto" type="button" onClick={() => { setErro(null); setEtapa('senha'); }}>Tenho uma senha</button>
+            <button className="btn btn-coral" onClick={() => irParaCodigo('primeira')}>Vamos começar</button>
+            <button className="btn btn-texto" onClick={() => { setErro(null); setEtapa('senha'); }}>Já tenho senha</button>
           </div>
           <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
-        </motion.form>
+        </motion.div>
       </Moldura>
     );
   }
@@ -100,15 +91,48 @@ export function Chegada() {
     return (
       <Moldura>
         <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={entrarSenha}>
-          <FluxoTopo aoVoltar={() => { setEtapa('email'); setErro(null); }} rotulo="Voltar" />
-          <h1>Entrar com senha</h1>
-          <p className="fraco">Para quem recebeu uma senha da equipe do Contigo. Colaboradores entram pelo código no e-mail.</p>
+          {token
+            ? <FluxoTopo aoVoltar={() => { setEtapa('boasvindas'); setErro(null); }} rotulo="Voltar" />
+            : <><div className="marca-grande"><Coracao /></div><p className="wordmark">Contigo</p><p className="assinatura">Conte comigo, estou contigo!</p></>}
+          {demo && <span className="selo-demo">Demonstração · dados só neste aparelho</span>}
+          <h1 style={{ marginTop: token ? 0 : 18 }}>Que bom te ver de novo.</h1>
+          <p className="fraco">Entre com o seu e-mail e a sua senha. Você fica conectado(a) neste aparelho.</p>
           <input className="campo" type="email" inputMode="email" autoComplete="username" placeholder="nome@empresa.com.br"
-            value={email} onChange={e => setEmail(e.target.value)} />
-          <input className="campo" type="password" autoComplete="current-password" placeholder="Senha"
-            value={senha} onChange={e => setSenha(e.target.value)} autoFocus />
+            value={email} onChange={e => setEmail(e.target.value)} autoFocus={!email} />
+          <div className="campo-senha">
+            <input className="campo" type={verSenha ? 'text' : 'password'} autoComplete="current-password" placeholder="Senha"
+              value={senha} onChange={e => setSenha(e.target.value)} autoFocus={!!email} />
+            <button type="button" className="ver" onClick={() => setVerSenha(v => !v)} aria-label={verSenha ? 'Esconder senha' : 'Mostrar senha'}>{verSenha ? 'Esconder' : 'Mostrar'}</button>
+          </div>
           <Erro msg={erro} />
-          <div className="pe"><button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Entrando…' : 'Entrar'}</button></div>
+          <div className="pe">
+            <button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Entrando…' : 'Entrar'}</button>
+            <button className="btn btn-texto" type="button" onClick={() => irParaCodigo('esqueci')}>Esqueci a senha</button>
+          </div>
+          <p className="nota centro">Primeira vez no Contigo? <a href="#" onClick={e => { e.preventDefault(); irParaCodigo('primeira'); }}>Entrar com o código do e-mail</a></p>
+          <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
+        </motion.form>
+      </Moldura>
+    );
+  }
+
+  if (etapa === 'email') {
+    return (
+      <Moldura>
+        <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={enviar}>
+          <FluxoTopo aoVoltar={() => { setEtapa(token ? 'boasvindas' : 'senha'); setErro(null); }} rotulo="Voltar" />
+          {demo && <span className="selo-demo">Demonstração · dados só neste aparelho</span>}
+          <h1>{motivo === 'esqueci' ? 'Vamos criar uma senha nova' : 'Qual é o seu e-mail?'}</h1>
+          <p className="fraco">{motivo === 'esqueci'
+            ? 'Mandamos um código para o seu e-mail. Com ele você entra e escolhe a senha nova.'
+            : 'Use o mesmo que a sua empresa cadastrou. Mandamos um código para ele só desta vez — depois você cria a sua senha.'}</p>
+          <input className="campo" type="email" inputMode="email" autoComplete="email" placeholder="nome@empresa.com.br"
+            value={email} onChange={e => setEmail(e.target.value)} autoFocus />
+          <Erro msg={erro} />
+          <div className="pe">
+            <button className="btn btn-coral" type="submit" disabled={ocupado}><Envelope />{ocupado ? 'Enviando…' : 'Mandar o código'}</button>
+          </div>
+          <p className="nota centro"><Link to="/ajuda" state={{ de: window.location.pathname }}>Precisa de ajuda agora?</Link></p>
         </motion.form>
       </Moldura>
     );
@@ -124,10 +148,68 @@ export function Chegada() {
           value={codigo} onChange={e => setCodigo(e.target.value)} autoFocus />
         <Erro msg={erro} />
         <div className="pe">
-          <button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Conferindo…' : 'Entrar'}</button>
+          <button className="btn btn-coral" type="submit" disabled={ocupado}>{ocupado ? 'Conferindo…' : 'Continuar'}</button>
           <button className="btn btn-texto" type="button" onClick={() => enviar()} disabled={ocupado}>Não chegou? Mandar de novo</button>
         </div>
-        {!demo && <p className="nota">Se em vez de código veio um <b>link</b>, é só tocar nele — ele te traz de volta para cá, já dentro.</p>}
+        <p className="nota">Depois do código, você cria a sua senha — e não precisa mais de código.</p>
+      </motion.form>
+    </Moldura>
+  );
+}
+
+/* =========================================================================
+   Criar senha: logo depois do primeiro código (ou de "esqueci a senha").
+   Dali em diante a pessoa entra com e-mail e senha e fica conectada.
+   ========================================================================= */
+export function CriarSenha({ trocando = false, nova = false }: { trocando?: boolean; nova?: boolean }) {
+  const { recarregar, email } = useSessao();
+  const nav = useNavigate();
+  const [senha, setSenha] = useState('');
+  const [ver, setVer] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const [pronto, setPronto] = useState(false);
+  const forca = senha.length >= 12 ? 3 : senha.length >= 8 ? 2 : senha.length > 0 ? 1 : 0;
+
+  const guardar = async (e?: FormEvent) => {
+    e?.preventDefault();
+    if (senha.length < 8) { setErro('Use pelo menos 8 caracteres. Pode ser uma frase curta, fácil de lembrar.'); return; }
+    setOcupado(true); setErro(null);
+    try {
+      await dados.criarSenha(senha);
+      local.apagar(CHAVE_DEFINIR_SENHA);
+      setPronto(true);   // o portão só muda de tela quando a pessoa tocar em "Continuar"
+    } catch (err) { setErro((err as Error).message); setOcupado(false); }
+  };
+
+  if (pronto) {
+    return (
+      <Moldura>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          <Selo confete={false} />
+          <h1 className="centro">Senha guardada.</h1>
+          <p className="lead centro">Da próxima vez, é só e-mail e senha — e você fica conectado(a) neste aparelho.</p>
+          <div className="pe"><button className="btn btn-coral" onClick={async () => { await recarregar(); nav(trocando ? '/eu' : '/', { replace: true }); }}>Continuar</button></div>
+        </motion.div>
+      </Moldura>
+    );
+  }
+
+  return (
+    <Moldura>
+      <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} onSubmit={guardar}>
+        {trocando && <FluxoTopo voltar="/eu" rotulo="Voltar" />}
+        <h1>{trocando ? 'Trocar a senha' : nova ? 'Escolha a senha nova' : 'Crie a sua senha'}</h1>
+        <p className="fraco">{trocando || nova ? <>A nova senha de <b>{email}</b>. Você fica conectado(a) neste aparelho.</> : <>Só desta vez. Depois você entra com <b>{email}</b> e a senha — sem código, sem esperar e-mail.</>}</p>
+        <div className="campo-senha">
+          <input className="campo" type={ver ? 'text' : 'password'} autoComplete="new-password" placeholder="Pelo menos 8 caracteres"
+            value={senha} onChange={e => setSenha(e.target.value)} autoFocus />
+          <button type="button" className="ver" onClick={() => setVer(v => !v)} aria-label={ver ? 'Esconder senha' : 'Mostrar senha'}>{ver ? 'Esconder' : 'Mostrar'}</button>
+        </div>
+        <div className="forca" data-n={forca}><i /><i /><i /></div>
+        <p className="pequeno fraco" style={{ marginTop: 4 }}>{forca === 0 ? 'Uma frase curta funciona bem: "meu cafe das 7".' : forca === 1 ? 'Curta demais ainda.' : forca === 2 ? 'Boa.' : 'Ótima.'}</p>
+        <Erro msg={erro} />
+        <div className="pe"><button className="btn btn-coral" type="submit" disabled={ocupado || senha.length < 8}>{ocupado ? 'Guardando…' : 'Guardar senha e continuar'}</button></div>
       </motion.form>
     </Moldura>
   );

@@ -29,8 +29,9 @@ export class DadosSupabase implements Dados {
   // ---- sessão ---------------------------------------------------------------
   async sessaoAtual() {
     const { data } = await this.sb.auth.getSession();
-    const email = data.session?.user.email;
-    return email ? { email } : null;
+    const u = data.session?.user;
+    if (!u?.email) return null;
+    return { email: u.email, senhaDefinida: (u.user_metadata as Record<string, unknown> | undefined)?.senha_definida === true };
   }
   aoMudarSessao(cb: () => void) {
     const { data } = this.sb.auth.onAuthStateChange(() => { this.conta = null; cb(); });
@@ -50,8 +51,20 @@ export class DadosSupabase implements Dados {
     if (error) throw new Error('Código não confere ou já venceu. Peça um novo.');
   }
   async entrarComSenha(email: string, senha: string) {
-    const { error } = await this.sb.auth.signInWithPassword({ email, password: senha });
+    const { data, error } = await this.sb.auth.signInWithPassword({ email, password: senha });
     if (error) throw new Error('E-mail ou senha não conferem.');
+    // Quem entra com senha tem senha: marca a conta para não pedir de novo (contas antigas, criadas pela equipe).
+    if ((data.user?.user_metadata as Record<string, unknown> | undefined)?.senha_definida !== true) {
+      await this.sb.auth.updateUser({ data: { senha_definida: true } }).catch(() => undefined);
+    }
+  }
+  async criarSenha(senha: string) {
+    const { error } = await this.sb.auth.updateUser({ password: senha, data: { senha_definida: true } });
+    if (error) {
+      if (/same as the old|different from the old/i.test(error.message)) throw new Error('Essa é a senha que você já usa. Escolha outra.');
+      if (/at least|too short|weak|Password should/i.test(error.message)) throw new Error('Use pelo menos 8 caracteres.');
+      throw traduzir(error);
+    }
   }
   async sair() { this.conta = null; await this.sb.auth.signOut(); }
 

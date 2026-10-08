@@ -70,11 +70,12 @@ export interface Dados {
   readonly demo: boolean;
 
   // sessão
-  sessaoAtual(): Promise<{ email: string } | null>;
+  sessaoAtual(): Promise<{ email: string; senhaDefinida: boolean } | null>;
   aoMudarSessao(cb: () => void): () => void;
   enviarCodigo(email: string, voltarPara: string): Promise<void>;
   confirmarCodigo(email: string, codigo: string): Promise<void>;
   entrarComSenha(email: string, senha: string): Promise<void>;
+  criarSenha(senha: string): Promise<void>;                 // define (ou troca) a senha da conta logada
   sair(): Promise<void>;
 
   // conta

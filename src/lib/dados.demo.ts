@@ -11,6 +11,7 @@ const K = 'contigo.demo';
 
 interface Estado {
   email: string | null;
+  senhaDefinida?: boolean;
   nome: string | null;
   vinculo: 'ativo' | 'inativo' | null;
   consentiu: boolean;
@@ -80,11 +81,12 @@ export class DadosDemo implements Dados {
   private salvar() { local.gravar(K, this.e); }
   private avisar() { this.ouvintes.forEach(f => f()); }
 
-  async sessaoAtual() { return this.e.email ? { email: this.e.email } : null; }
+  async sessaoAtual() { return this.e.email ? { email: this.e.email, senhaDefinida: !!this.e.senhaDefinida } : null; }
   aoMudarSessao(cb: () => void) { this.ouvintes.add(cb); return () => { this.ouvintes.delete(cb); }; }
   async enviarCodigo(email: string) { await espera(); local.gravar('contigo.demo.email-pendente', email); }
   async confirmarCodigo(email: string) { await espera(); this.e.email = email; this.salvar(); this.avisar(); }
-  async entrarComSenha(email: string) { await espera(); this.e.email = email; this.salvar(); this.avisar(); }
+  async entrarComSenha(email: string) { await espera(); this.e.email = email; this.e.senhaDefinida = true; this.salvar(); this.avisar(); }
+  async criarSenha() { await espera(); this.e.senhaDefinida = true; this.salvar(); this.avisar(); }
   async sair() { this.e.email = null; this.salvar(); this.avisar(); }
 
   async minhaConta(): Promise<Conta> {

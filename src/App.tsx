@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Carregando, Moldura } from './componentes/base';
 import { ProvedorSessao, useSessao } from './lib/sessao';
-import { CHAVE_CONVITE, CHAVE_INSTALACAO_VISTA, estaInstalado, local } from './lib/util';
+import { CHAVE_CONVITE, CHAVE_DEFINIR_SENHA, CHAVE_INSTALACAO_VISTA, estaInstalado, local } from './lib/util';
 import { Ajuda } from './telas/Ajuda';
-import { Ativar, Chegada, Consentir, Instalar, SemAcesso } from './telas/Chegada';
+import { Ativar, Chegada, Consentir, CriarSenha, Instalar, SemAcesso } from './telas/Chegada';
 import { AfinidadePronto, AfinidadeTela, Conversar } from './telas/Conversar';
 import { Eu } from './telas/Eu';
 import { Checkin, Hoje, PraticaGuiada, Pronto } from './telas/Hoje';
@@ -57,6 +57,16 @@ function Portao() {
     );
   }
 
+  // Entrou pelo código (primeira vez ou "esqueci a senha"): cria a senha antes de qualquer outra coisa.
+  if (!s.senhaDefinida || local.ler<boolean>(CHAVE_DEFINIR_SENHA, false)) {
+    return (
+      <Routes>
+        <Route path="/senha" element={<CriarSenha nova={s.senhaDefinida} />} />
+        <Route path="*" element={<Navigate to="/senha" replace />} />
+      </Routes>
+    );
+  }
+
   const ativo = s.conta?.vinculo === 'ativo' && !!s.conta?.membroId;
   const temToken = !!tokenPendente || caminho.startsWith('/ativar/');
 
@@ -97,6 +107,7 @@ function Portao() {
       <Route path="/conversar/afinidade/:n" element={<AfinidadeTela />} />
       <Route path="/eu" element={<Eu />} />
       <Route path="/instalar" element={<Instalar />} />
+      <Route path="/senha" element={<CriarSenha trocando />} />
       <Route path="/consentir" element={<Navigate to={precisaInstalar ? '/instalar' : '/'} replace />} />
       <Route path="/entrar" element={<Navigate to="/" replace />} />
       <Route path="/ativar/:token" element={<Navigate to="/" replace />} />

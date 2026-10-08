@@ -56,6 +56,9 @@ export function Eu() {
         <h2>Na sua tela</h2>
         <LinhaAcao icone={<Celular />} tom="ambar" titulo="Colocar o Contigo na tela" sub="Ver o passo a passo de novo" para="/instalar" />
 
+        <h2>Sua conta</h2>
+        <LinhaAcao icone={<Cadeado />} tom="rosa" titulo="Trocar a senha" sub="Você continua conectado(a) neste aparelho" para="/senha" />
+
         <h2>Seus dados</h2>
         <LinhaAcao icone={<Lixo />} tom="uva" titulo="Apagar tudo o que registrei" sub="Não tem volta, e é seu direito." onClick={() => setFolha('apagar')} />
         <button className="btn btn-texto" style={{ marginTop: 10 }} onClick={async () => { await dados.sair(); nav('/entrar', { replace: true }); }}>Sair da conta</button>
